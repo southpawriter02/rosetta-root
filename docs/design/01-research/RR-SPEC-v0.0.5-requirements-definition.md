@@ -7,6 +7,8 @@
 
 ## Task Overview
 
+This version converts all findings from v0.0.1–v0.0.4 research into a complete, implementable requirements specification. It is divided into four sub-parts: v0.0.5a (68 functional requirements), v0.0.5b (21 non-functional requirements + 6 constraints), v0.0.5c (scope boundaries and out-of-scope registry), and v0.0.5d (MVP definition with success criteria). Together, these documents define what DocStratum must do, how well it must do it, what it explicitly will not do, and how to verify that it's done.
+
 ---
 
 ## Requirements Framework
@@ -22,27 +24,49 @@ Using **MoSCoW prioritization**:
 
 ## Functional Requirements
 
+68 formal requirements (FR-001 through FR-068) organized across 7 modules. See [v0.0.5a](RR-SPEC-v0.0.5a-functional-requirements-specification.md) for the complete specification.
+
 ### Schema & Validation
+
+FR-001 to FR-012 (12 requirements): Pydantic models, 5-level validation pipeline (L0–L4), error reporting with line numbers and severity codes. 8 MUST, 4 SHOULD.
 
 ### Content Structure
 
+FR-013 to FR-025 (13 requirements): 3-layer architecture (Master Index, Concept Map, Few-Shot Bank), cross-layer reference resolution, JSON/YAML export. 5 MUST, 6 SHOULD, 2 COULD.
+
 ### Agent Integration
+
+FR-039 to FR-050 (12 requirements): Baseline and enhanced agents, system prompt injection, multi-provider LLM support, few-shot in-context learning, agent configuration. 6 MUST, 5 SHOULD, 1 COULD.
 
 ### Testing & Validation
 
+FR-051 to FR-058 (8 requirements): A/B test harness, response comparison metrics, statistical significance, baseline definition, 4-category test query design. 6 MUST, 2 SHOULD.
+
 ### Demo & Visualization
+
+FR-059 to FR-065 (7 requirements): Streamlit UI with file upload, side-by-side agent comparison, metrics display, settings panel. 2 MUST, 3 SHOULD, 2 COULD.
 
 ---
 
 ## Non-Functional Requirements
 
+21 formal requirements (NFR-001 through NFR-021) across 5 quality dimensions, plus 6 hard constraints (CONST-001 through CONST-006). See [v0.0.5b](RR-SPEC-v0.0.5b-non-functional-requirements-and-constraints.md) for the complete specification.
+
 ### Performance
+
+NFR-001 to NFR-005: Parse time < 500ms, context build < 2s, agent latency < 8–12s, memory < 200MB. Calibrated to agent timeout budgets and real-world file size data from v0.0.2.
 
 ### Usability
 
+NFR-006 to NFR-009: Clear CLI error messages with severity/code/remediation, 100% documentation coverage, grouped validation output, demo UI response < 200ms. Serves both developer and portfolio reviewer audiences.
+
 ### Maintainability
 
+NFR-010 to NFR-013: Test coverage ≥ 80% for core modules (≥ 60% for UI), Black + Ruff compliance, < 15 direct dependencies, substantial inline documentation for complex algorithms.
+
 ### Compatibility
+
+NFR-014 to NFR-018: Python 3.9+, multi-provider LLM support (OpenAI, Claude, LiteLLM), cross-OS (Linux, macOS, Windows), HTTPS-only for real URLs, input validation with 50MB max file size.
 
 ---
 
@@ -137,9 +161,9 @@ If time permits:
 
 ## 📂 Sub-Part Pages
 
-[v0.0.5a — Functional Requirements Specification](RR-SPEC-v0.0.5a-functional-requirements-specification.md) — 65+ formal requirements (FR-001+) organized by module with acceptance tests
+[v0.0.5a — Functional Requirements Specification](RR-SPEC-v0.0.5a-functional-requirements-specification.md) — 68 formal requirements (FR-001 through FR-068) organized by 7 modules with acceptance tests, MoSCoW priorities, and bidirectional traceability
 
-[v0.0.5b — Non-Functional Requirements & Constraints](RR-SPEC-v0.0.5b-non-functional-requirements-and-constraints.md) — 21 NFRs with measurable targets, 6 hard constraints
+[v0.0.5b — Non-Functional Requirements & Constraints](RR-SPEC-v0.0.5b-non-functional-requirements-and-constraints.md) — 21 NFRs with measurable targets, 6 hard constraints, NFR-to-FR traceability matrix, trade-off analysis, per-module quality standards
 
 [v0.0.5c — Scope Definition & Out-of-Scope Registry](RR-SPEC-v0.0.5c-scope-definition-and-out-of-scope-registry.md) — 32+ out-of-scope items, Scope Fence decision tree, deferred features registry
 

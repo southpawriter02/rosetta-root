@@ -6,6 +6,12 @@
 
 ## Sub-Part Overview
 
+This sub-part complements v0.0.5a (Functional Requirements) by defining HOW WELL the system must perform and what immovable boundaries constrain its implementation. Drawing on performance insights from v0.0.1c (token budgeting, processing pipelines), quality standards from v0.0.4b (content scoring, description quality), usability patterns from v0.0.2 (error handling in real-world files), and ecosystem constraints from v0.0.3 (MCP transport, provider compatibility), this document establishes 21 formally identified non-functional requirements (NFR-001 through NFR-021) across 5 quality dimensions (Performance, Usability, Maintainability, Compatibility, Security) plus 6 hard constraints (CONST-001 through CONST-006) from project scope.
+
+**Distribution:** 2 MUST requirements define critical performance gates, 19 SHOULD requirements establish professional quality standards, and 0 COULD requirements — all NFRs are treated as essential quality attributes. All 21 NFRs include measurable targets (ms, MB, %, coverage thresholds) and explicit verification methods. The 6 hard constraints document immovable boundaries from the project's nature as a solo-developer portfolio piece with a fixed tech stack and 40–60 hour time budget.
+
+**Relationship to v0.0.5a:** Each NFR constrains one or more functional requirements from v0.0.5a. For example, NFR-001 (parse time < 500ms) constrains FR-026 (parser implementation) and FR-003–004 (validation levels 0–1). NFR-010 (test coverage ≥ 80%) applies across all 68 functional requirements. The traceability section (§11) maps every NFR to the FRs it governs and the research phases that justify its target values.
+
 ---
 
 ## Objective
@@ -275,18 +281,140 @@ Given time and resource constraints, here are explicit trade-offs:
 
 ---
 
+## 11. NFR-to-FR Traceability Matrix
+
+### Objective
+
+Every non-functional requirement constrains one or more functional requirements from v0.0.5a. This matrix establishes bidirectional traceability, ensuring that when a functional requirement is implemented, the corresponding quality targets are also enforced.
+
+### Performance NFRs → Functional Requirements
+
+| NFR | Constrains FRs | Rationale | Research Source |
+|-----|----------------|-----------|----------------|
+| NFR-001 (Parse time < 500ms) | FR-026 (Parser/Loader), FR-003 (Validation L0), FR-004 (Validation L1) | Parsing and L0–L1 validation are synchronous operations that block the agent pipeline; must complete within agent timeout budgets | v0.0.1a (grammar complexity), v0.0.1c (processing methods) |
+| NFR-002 (Context build < 2s) | FR-013 (Layer 0), FR-016 (Layer 1), FR-020 (Layer 2), FR-024 (cross-layer integration), FR-034 (hybrid pipeline) | All three layers must be assembled within the context build budget; the hybrid pipeline orchestrates this constraint | v0.0.1c (token budgeting, hybrid pipeline architecture) |
+| NFR-003 (Baseline latency < 8s) | FR-039 (baseline agent), FR-048 (test harness) | Establishes the control group timing ceiling; test harness must measure and report this | v0.0.4 (agent testing patterns) |
+| NFR-004 (Enhanced latency < 12s) | FR-040 (enhanced agent), FR-034 (hybrid pipeline), FR-042 (context window management) | The +4s overhead budget must accommodate context injection, layer selection, and few-shot prepending without exceeding agent timeout | v0.0.1c (token budgeting), v0.0.4 (agent patterns) |
+| NFR-005 (Memory < 200MB) | FR-026 (loader), FR-031 (streaming), FR-025 (JSON/YAML export) | Loader must not load entire large files into memory; streaming (FR-031 COULD) is the mitigation path | v0.0.2 (file size variance: 159 bytes to 3.7M tokens observed) |
+
+### Usability NFRs → Functional Requirements
+
+| NFR | Constrains FRs | Rationale | Research Source |
+|-----|----------------|-----------|----------------|
+| NFR-006 (CLI error messages) | FR-008 (error reporting), FR-003–007 (all validation levels) | Every validation error must include severity, code, message, and remediation; the error reporter (FR-008) is the implementing FR | v0.0.1a (error code registry: E-series, W-series, I-series) |
+| NFR-007 (Documentation coverage) | FR-066 (dependency injection), FR-067 (logging), all public-facing FRs | 100% docstring coverage requirement applies to every module's public API surface | v0.0.4 (usability standards), project philosophy (docs-first) |
+| NFR-008 (Validation error grouping) | FR-012 (validation summary), FR-008 (error reporting) | Summary must group related issues and cap output at 100 lines for typical files | v0.0.2 (observed: some files generate 50+ raw errors for one root cause) |
+| NFR-009 (Demo UI responsiveness) | FR-059 (Streamlit UI), FR-060 (side-by-side view), FR-064 (settings panel) | All Streamlit widgets must respond within 200ms; API call latency is excluded from this target | v0.0.4 (demo requirements) |
+
+### Maintainability NFRs → Functional Requirements
+
+| NFR | Constrains FRs | Rationale | Research Source |
+|-----|----------------|-----------|----------------|
+| NFR-010 (Test coverage ≥ 80%) | All 32 MUST FRs (core modules); relaxed for FR-059–065 (demo layer: ≥ 60%) | Core data processing (validation, parsing, context building) must have high coverage to prevent regressions; UI code has lower bar | v0.0.4 (quality standards), CONST-006 (time budget limits) |
+| NFR-011 (Black + Ruff compliance) | All FRs that produce Python code | 100% style compliance reduces review friction and ensures consistent appearance across all modules | v0.0.4 (maintainability best practices) |
+| NFR-012 (Dependency management < 15 direct deps) | FR-044 (multi-provider via LiteLLM), FR-039–040 (agents via LangChain), FR-059 (demo via Streamlit) | Each major framework (LangChain, Streamlit, Pydantic, LiteLLM) counts as one dependency; must justify every addition | v0.0.3 (ecosystem survey: supply-chain risk analysis) |
+| NFR-013 (Documentation-to-code ratio) | FR-032 (processing methods), FR-034 (hybrid pipeline), FR-035 (query-aware selection) | Complex algorithmic modules (context building, ranking, filtering) require inline comments explaining the "why" behind decisions | Project philosophy (Writer's Edge: structure is a feature) |
+
+### Compatibility NFRs → Functional Requirements
+
+| NFR | Constrains FRs | Rationale | Research Source |
+|-----|----------------|-----------|----------------|
+| NFR-014 (Python 3.9+) | All FRs | No use of 3.8-only features; leverage type hints, match statements (3.10+) with fallbacks | v0.0.3 (ecosystem: most tools target 3.9+) |
+| NFR-015 (Multi-provider LLM) | FR-044 (LLM providers), FR-039–040 (agents) | LiteLLM abstraction must be the only provider touchpoint; agents must not contain provider-specific code | v0.0.4 (DECISION-015: MCP-first, but not provider-locked) |
+| NFR-016 (Cross-OS) | FR-026 (loader: file paths), FR-025 (serializer: JSON/YAML export) | Use pathlib exclusively; test file I/O on Linux, macOS, Windows in CI | v0.0.3 (user base is cross-platform developers) |
+| NFR-017 (HTTPS-only) | FR-026 (URL loading), FR-015 (URL canonicalization), FR-005 (URL resolution) | All real URLs must use HTTPS; HTTP allowed only for localhost during testing | v0.0.4 (security best practices) |
+| NFR-018 (Input validation) | FR-026 (loader), FR-003 (syntax validation), FR-028 (error recovery) | Max file size 50MB; validate JSON before parsing; reject URLs with dangerous protocols | v0.0.2 (observed: Cloudflare's 3.7M-token file as cautionary example) |
+
+### Security NFRs → Functional Requirements
+
+| NFR | Constrains FRs | Rationale | Research Source |
+|-----|----------------|-----------|----------------|
+| NFR-019 (No credentials in llms.txt) | FR-003 (syntax validation), FR-006 (quality validation) | Scan for common secret patterns (regex) during validation; warn user if detected | v0.0.4 (security: Preference Trap anti-pattern risk) |
+| NFR-020 (URL validation) | FR-026 (loader), FR-005 (URL resolution), FR-015 (URL canonicalization) | Whitelist http/https only; parse with urllib; validate scheme/netloc before any fetch | v0.0.4 (security: SSRF prevention) |
+| NFR-021 (Input sanitization) | FR-026 (loader), FR-049 (trace/logging), FR-067 (cross-module logging) | Never use unsanitized user input in shell commands; escape special chars in logs | v0.0.4 (security: injection prevention) |
+
+### Coverage Summary
+
+| Quality Dimension | NFR Count | FRs Constrained | Primary Research Source |
+|-------------------|-----------|-----------------|----------------------|
+| Performance | 5 | 15 unique FRs | v0.0.1c (processing methods, token budgeting) |
+| Usability | 4 | 9 unique FRs | v0.0.1a (error registry), v0.0.4 (demo requirements) |
+| Maintainability | 4 | All 68 FRs (via code standards) | v0.0.4 (quality standards) |
+| Compatibility | 5 | 12 unique FRs | v0.0.3 (ecosystem), v0.0.4 (DECISION-015) |
+| Security | 3 | 8 unique FRs | v0.0.4 (anti-patterns, security practices) |
+| **TOTAL** | **21** | **All 68 FRs covered** | **v0.0.1–v0.0.4 (complete research chain)** |
+
+---
+
+## 12. Inputs from Previous Sub-Parts
+
+| Source | What It Provides | Used In |
+|--------|-----------------|---------|
+| v0.0.1a — Formal Grammar & Parsing Rules | Parsing complexity analysis; error code registry (E/W/I series); validation level definitions | NFR-001 (parse time calibration), NFR-006 (error message format) |
+| v0.0.1c — Context & Processing Patterns | Token budgeting concepts; hybrid pipeline architecture; processing method timing estimates | NFR-002 (context build time), NFR-004 (enhanced agent latency), NFR-005 (memory limits) |
+| v0.0.2 — Wild Examples Audit | File size variance data (159B to 3.7M tokens); real-world error patterns; quality correlation analysis | NFR-005 (memory calibration), NFR-008 (error grouping rationale), NFR-018 (max file size) |
+| v0.0.3 — Ecosystem Survey | Provider compatibility landscape; Python version support across tools; cross-platform usage patterns | NFR-014 (Python version), NFR-015 (LLM providers), NFR-016 (OS support) |
+| v0.0.4 — Best Practices Synthesis | Quality scoring pipeline (57 checks); anti-pattern severity classification; security recommendations; demo requirements | NFR-006–009 (usability), NFR-010–013 (maintainability), NFR-019–021 (security) |
+| v0.0.5a — Functional Requirements | 68 functional requirements (FR-001 to FR-068) organized by module; MoSCoW priorities; acceptance tests | NFR-to-FR traceability (§11); per-module quality targets (§9) |
+
+---
+
+## 13. Outputs to Next Sub-Part
+
+| Output | Consumed By | How It's Used |
+|--------|------------|---------------|
+| 21 NFRs with measurable targets | v0.0.5c (Scope Definition) | NFR targets constrain what's in scope — features that can't meet NFRs are candidates for deferral |
+| 6 hard constraints | v0.0.5c (Scope Definition) | CONST-001–006 define the immovable boundaries that the scope fence must respect |
+| Per-module quality targets (§9) | v0.0.5d (Success Criteria & MVP) | Quality standards become pass/fail criteria for the MVP definition |
+| Trade-off resolutions (§8) | v0.0.5d (Success Criteria) | Resolved trade-offs inform which stretch goals are realistic given constraints |
+| Risk mitigation strategies (§10) | v0.0.5d (Success Criteria) | Risk register feeds into test scenario design and the Definition of Done |
+| NFR-to-FR traceability (§11) | v0.1.0+ (Implementation) | Every implementation module knows which quality targets it must meet alongside its functional requirements |
+
+---
+
+## 14. Limitations & Constraints
+
+1. **NFR targets are estimates, not guarantees.** Performance targets (NFR-001 through NFR-005) are calibrated against agent use cases and real-world file data from v0.0.2, but actual performance depends on hardware, network latency, and LLM provider response times. Targets will be validated and potentially adjusted during v0.5.x (Testing & Validation).
+
+2. **Third-party SLA exclusion.** NFR-003 and NFR-004 (agent response latency) include LLM API call time, which is controlled by external providers (OpenAI, Anthropic). The measurable targets assume typical API response times (3–8s). Provider outages or rate limiting are outside project control and handled via graceful degradation (FR-043).
+
+3. **Cross-OS testing is best-effort.** NFR-016 requires Linux, macOS, and Windows support, but CONST-001 (solo developer) limits testing to the developer's available platforms. CI matrix testing (GitHub Actions) mitigates this but may not catch all platform-specific issues.
+
+4. **Security requirements are defensive, not comprehensive.** NFR-019–021 address the most likely attack vectors (credential exposure, SSRF, injection), but DocStratum is a portfolio project (CONST-002), not a security-critical production system. A full security audit is out of scope.
+
+5. **Memory target assumes typical files.** NFR-005 (< 200MB) targets typical llms.txt files (≤ 50KB). The extreme case (Cloudflare's 3.7M-token file from v0.0.2) would require streaming (FR-031, COULD priority) to stay within budget.
+
+6. **Test coverage relaxation for UI code.** NFR-010 relaxes the ≥ 80% target to ≥ 60% for the Demo Layer (FR-059–065) because Streamlit widget testing requires integration-level tooling that is disproportionately expensive for a portfolio demo.
+
+---
+
+## 15. User Story
+
+> As a **solo developer building DocStratum**, I need clearly defined non-functional requirements with measurable targets so that I can make informed trade-off decisions during implementation (e.g., "Is this optimization worth the complexity?"), establish automated quality gates in CI (test coverage, style compliance, performance benchmarks), and demonstrate professional engineering rigor to portfolio reviewers who evaluate not just what the code does but how well it does it.
+
+> As a **developer integrating DocStratum into an agent**, I need performance guarantees (parse < 500ms, context build < 2s) and compatibility assurances (Python 3.9+, multi-provider LLM support, cross-OS) so that I can confidently use DocStratum in my agent pipeline without worrying about timeouts, memory exhaustion, or platform incompatibilities.
+
+> As a **portfolio evaluator reviewing DocStratum**, I need evidence of professional quality standards (test coverage, code style, documentation, security practices) so that I can assess the developer's engineering maturity beyond just feature completeness.
+
+---
+
 ## Deliverables
 
-- [x] 21 formally identified non-functional requirements (NFR-001 through NFR-021+)
+- [x] 21 formally identified non-functional requirements (NFR-001 through NFR-021)
 - [x] Performance requirements with specific targets (latency ms, memory MB, coverage %)
-- [x] Usability standards tied to user workflows
+- [x] Usability standards tied to user workflows (developer + portfolio audiences)
 - [x] Maintainability metrics (test coverage, style, documentation)
 - [x] Compatibility matrix (Python, LLM providers, OS)
 - [x] Security requirements protecting data integrity
-- [x] 6 hard constraints from project scope
-- [x] Trade-off analysis across performance/features/scope
-- [x] Per-module quality standards
-- [x] Risk mitigation strategies
+- [x] 6 hard constraints from project scope (CONST-001 through CONST-006)
+- [x] Trade-off analysis across performance/features/scope (9 explicit trade-offs resolved)
+- [x] Per-module quality standards (7 modules with performance, coverage, and documentation targets)
+- [x] Risk mitigation strategies (6 risks with likelihood/impact/mitigation)
+- [x] NFR-to-FR traceability matrix mapping all 21 NFRs to the 68 functional requirements they constrain
+- [x] Research source traceability linking NFRs to v0.0.1–v0.0.4 evidence base
+- [x] Inputs/Outputs documentation connecting v0.0.5b to adjacent sub-parts
+- [x] Limitations acknowledged with rationale (6 documented limitations)
+- [x] User stories for 3 personas (developer, integrator, evaluator)
 
 ---
 
@@ -302,6 +430,12 @@ Given time and resource constraints, here are explicit trade-offs:
 - [x] Security requirements address data protection and input validation
 - [x] Hard constraints documented and ratified
 - [x] Trade-offs explicitly analyzed and resolved
+- [x] NFR-to-FR traceability matrix complete (all 21 NFRs mapped to FRs they constrain)
+- [x] Research source traceability complete (all NFRs traced to v0.0.1–v0.0.4)
+- [x] Inputs from previous sub-parts documented
+- [x] Outputs to next sub-part documented
+- [x] Limitations & constraints acknowledged
+- [x] User stories defined for target personas
 - [x] Document is self-contained and implementable
 
 ---
