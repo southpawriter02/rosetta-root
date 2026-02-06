@@ -6,7 +6,11 @@
 
 ## Sub-Part Overview
 
----
+This sub-part complements v0.0.5a (Functional Requirements) and v0.0.5b (Non-Functional Requirements & Constraints) by drawing a hard perimeter around the v0.6.0 MVP — defining not only what DocStratum IS, but rigorously cataloging what it IS NOT and providing operational tooling to keep it that way during implementation. Drawing on scope risks surfaced across all four research phases — v0.0.1 (specification gaps inviting feature creep), v0.0.2 (wild variation suggesting unbounded scope), v0.0.3 (75+ ecosystem tools tempting integration sprawl), and v0.0.4 (best practices creating "nice-to-have" gravity) — this document establishes a formal scope defense system comprising 32 out-of-scope items (OOS-A1 through OOS-G5) across 7 exclusion categories, a "Scope Fence" decision tree for real-time feature evaluation, a deferred features registry preserving 11 valuable post-MVP ideas, a 5-step scope change management process, 7 explicit exclusion statements with rationale, and 5 health metrics for ongoing scope monitoring.
+
+**Distribution:** 3 commercial/production exclusions (Category A), 5 full-platform exclusions (Category B), 5 ecosystem integration exclusions (Category C), 5 advanced ML/AI exclusions (Category D), 5 deployment/infrastructure exclusions (Category E), 4 historical/legacy exclusions (Category F), and 5 nice-to-have exclusions (Category G). All 32 items include: what the feature is, why it's excluded, when it becomes feasible, and what would need to change. The deferred features registry captures 11 items with estimated effort (4–30 hours each) and target versions (v1.5+ through v2.0+).
+
+**Relationship to v0.0.5a and v0.0.5b:** Every OOS item was evaluated against the 68 functional requirements from v0.0.5a to confirm it does not overlap with any MUST or SHOULD requirement. The 6 hard constraints from v0.0.5b (CONST-001 through CONST-006) directly inform the exclusion rationale — particularly CONST-001 (solo developer), CONST-002 (portfolio scope), CONST-005 (v0.6.0 target), and CONST-006 (40–60 hour budget). The Scope Fence decision tree references FR IDs and MoSCoW priorities from v0.0.5a as its first evaluation filters.
 
 ## Objective
 
@@ -26,7 +30,64 @@ Scope creep is a primary risk on constrained projects (solo developer, 40–60 h
 
 ## Scope Boundaries
 
+### In Scope
+
+- Defining the explicit in-scope boundary statement for DocStratum v0.6.0 MVP
+- Cataloging out-of-scope items with detailed justifications across multiple categories
+- Providing the "Scope Fence" decision tree for evaluating new feature ideas during implementation
+- Building a deferred features registry for valuable post-MVP ideas
+- Establishing a scope change management process to prevent ad-hoc scope expansion
+- Defining explicit exclusion statements (what DocStratum is NOT)
+- Providing scope health metrics for monitoring during v0.1–v0.6 implementation
+- Mapping OOS items back to functional requirements (v0.0.5a) and constraints (v0.0.5b) for traceability
+
 ### Out of Scope
+
+- Functional behavior definitions (that's v0.0.5a)
+- Non-functional quality targets and constraints (that's v0.0.5b)
+- Success metrics, test scenarios, or MVP pass/fail criteria (that's v0.0.5d)
+- Implementation details, code design, or API signatures
+- Detailed cost/benefit analysis for deferred features (those are post-MVP planning concerns)
+- Third-party platform evaluations or technology selection (fixed tech stack per CONST-003)
+
+---
+
+## Dependencies
+
+```
+v0.0.1–4 — Research Phase (COMPLETED)
+    ├── v0.0.1: Specification gaps → features that could tempt scope creep
+    ├── v0.0.2: Wild variation → unbounded implementation possibilities
+    ├── v0.0.3: 75+ tools → integration sprawl risk
+    └── v0.0.4: Best practices → "nice-to-have" gravity pull
+
+v0.0.5a — Functional Requirements (COMPLETED)
+    ├── 68 FRs define what IS in scope (FR-001 through FR-068)
+    ├── MoSCoW priorities separate MUST from SHOULD/COULD
+    └── 7 module boundaries constrain implementation surface
+
+v0.0.5b — Non-Functional Requirements & Constraints (COMPLETED)
+    ├── 6 hard constraints (CONST-001–006) define immovable boundaries
+    ├── 21 NFRs with measurable targets constrain feasibility
+    └── Trade-off resolutions inform scope vs. timeline decisions
+
+                            v
+v0.0.5c — Scope Definition & Out-of-Scope Registry (THIS TASK)
+                            │
+                            v
+v0.0.5d — Success Criteria & MVP Definition
+    ├── Uses scope boundaries to define pass/fail criteria
+    ├── Uses deferred features to define stretch goals
+    └── Uses Scope Fence to evaluate late-breaking requirements
+                            │
+        ┌───────────────────┼───────────────────┐
+        v                   v                   v
+    v0.1.0            v0.2.0              v0.3.0–v0.6.0
+  (Foundation)      (Data Prep)        (Implementation)
+  Scope Fence       Scope Fence         Scope Fence
+  active during     active during       active during
+  all phases        all phases          all phases
+```
 
 ---
 
@@ -380,15 +441,188 @@ Every 2 weeks, check:
 
 ---
 
+## Part 8: OOS-to-FR Traceability
+
+### Objective
+
+Every out-of-scope item exists in relation to one or more functional requirements from v0.0.5a. Some OOS items represent features that were considered and rejected; others represent extensions of existing FRs that exceed the v0.6.0 boundary. This matrix establishes bidirectional traceability so that during implementation, any "why didn't we include X?" question has a documented answer.
+
+### Category A (Commercial) → FR Mapping
+
+| OOS Item | Related FRs | Relationship | Rationale for Exclusion |
+|----------|------------|--------------|------------------------|
+| OOS-A1 (SaaS Platform) | FR-059–065 (Demo Layer) | Extension beyond | Demo is local Streamlit; SaaS requires deployment infra beyond CONST-002 (portfolio scope) |
+| OOS-A2 (Commercial Licensing) | None directly | Orthogonal | Business concern, not functional requirement; CONST-002 makes this irrelevant |
+| OOS-A3 (Premium Tiers) | FR-064 (Settings Panel) | Extension beyond | Settings are local config; premium tiers require user auth and payment — exceeds CONST-006 (time budget) |
+
+### Category B (Platforms) → FR Mapping
+
+| OOS Item | Related FRs | Relationship | Rationale for Exclusion |
+|----------|------------|--------------|------------------------|
+| OOS-B1 (Web Editor) | FR-059 (Streamlit UI) | Extension beyond | Streamlit is read-only demo; full editor requires JS frontend — exceeds CONST-003 (fixed tech stack) |
+| OOS-B2 (Real-Time Sync) | FR-026 (Loader), FR-030 (Cache) | Extension beyond | Loader handles file/URL input; sync requires per-platform connectors — exceeds CONST-006 |
+| OOS-B3 (Auto-Generation) | FR-020 (Few-Shot Bank), FR-016 (Concept Map) | Inverse approach | DocStratum validates/enriches; auto-generation requires domain-specific knowledge extraction |
+| OOS-B4 (Full RAG) | FR-035 (Query-Aware Selection), FR-046 (Retrieval Strategy) | Extension beyond | FR-046 includes keyword + hybrid search; full RAG requires vector DB — exceeds scope |
+| OOS-B5 (GraphQL API) | FR-025 (JSON/YAML Export) | Extension beyond | Export covers serialization; GraphQL requires API server infra — exceeds CONST-002 |
+
+### Category C (Ecosystem Integration) → FR Mapping
+
+| OOS Item | Related FRs | Relationship | Rationale for Exclusion |
+|----------|------------|--------------|------------------------|
+| OOS-C1 (Stripe Integration) | FR-026 (Loader) | Specialization | Loader is generic; Stripe-specific handling violates generalization principle |
+| OOS-C2 (Confluence Plugin) | FR-026 (Loader) | Extension beyond | Loader accepts URL/file; platform plugins require SDK integration — exceeds scope |
+| OOS-C3 (VS Code Extension) | FR-008 (Error Reporting) | Extension beyond | Errors are CLI/API; VS Code extension requires TypeScript — violates CONST-003 |
+| OOS-C4 (GitHub App) | FR-003–007 (Validation) | Extension beyond | Validation is local library; CI/CD integration requires webhook handling — exceeds scope |
+| OOS-C5 (Slack Bot) | FR-060 (Side-by-Side View) | Extension beyond | Demo view is Streamlit; Slack bot requires bot API registration — exceeds scope |
+
+### Category D (Advanced ML) → FR Mapping
+
+| OOS Item | Related FRs | Relationship | Rationale for Exclusion |
+|----------|------------|--------------|------------------------|
+| OOS-D1 (Embeddings) | FR-046 (Retrieval Strategy) | Extension beyond | FR-046 includes keyword + hybrid; embeddings require vector DB — COULD for post-MVP |
+| OOS-D2 (Fine-Tuned LLM) | FR-039–040 (Agents) | Extension beyond | Agents use base models; fine-tuning requires labeled data + compute — exceeds CONST-006 |
+| OOS-D3 (Multi-Modal) | FR-013–025 (Content Structure) | Extension beyond | Content layers are text-based; multi-modal requires media parsing — beyond project goals |
+| OOS-D4 (RLHF) | FR-048 (Test Harness) | Extension beyond | Test harness measures quality; RLHF requires ongoing training loop — exceeds scope |
+| OOS-D5 (LLM as Validator) | FR-003–007 (Validation Levels) | Alternative approach | Validation uses deterministic rules; LLM judge is non-deterministic — considered but deferred |
+
+### Category E (Deployment) → FR Mapping
+
+| OOS Item | Related FRs | Relationship | Rationale for Exclusion |
+|----------|------------|--------------|------------------------|
+| OOS-E1 (Docker) | FR-059 (Streamlit UI) | Extension beyond | Demo runs locally via `streamlit run`; Docker adds deployment complexity — CONST-002 |
+| OOS-E2 (Kubernetes) | None directly | Orthogonal | Orchestration is production concern; portfolio demo doesn't need it |
+| OOS-E3 (Monitoring) | FR-049 (Trace/Logging), FR-067 (Logging) | Extension beyond | Internal logging covers debugging; production monitoring requires external services |
+| OOS-E4 (Horizontal Scaling) | None directly | Orthogonal | Single-user tool; scaling is production concern — CONST-001 (solo developer) |
+| OOS-E5 (Backup/DR) | None directly | Orthogonal | Portfolio project; no data persistence requiring recovery |
+
+### Category F (Legacy) → FR Mapping
+
+| OOS Item | Related FRs | Relationship | Rationale for Exclusion |
+|----------|------------|--------------|------------------------|
+| OOS-F1 (Python 3.7) | All FRs (via NFR-014) | Constraint boundary | NFR-014 sets Python 3.9+ floor; 3.7 is EOL — no value in backward compatibility |
+| OOS-F2 (Old llms.txt Versions) | FR-001–002 (Schema) | Non-applicable | Official spec is stable; no versioning exists yet — nothing to support |
+| OOS-F3 (Legacy LLM Models) | FR-044 (LLM Providers) | Constraint boundary | NFR-015 targets current models; deprecated models offer no value for testing |
+| OOS-F4 (Windows-Specific) | FR-026 (Loader) | Already handled | NFR-016 requires cross-OS via pathlib; special Windows handling is unnecessary |
+
+### Category G (Nice-to-Have) → FR Mapping
+
+| OOS Item | Related FRs | Relationship | Rationale for Exclusion |
+|----------|------------|--------------|------------------------|
+| OOS-G1 (Neo4j) | FR-017 (Concept Graph), FR-062 (Graph Viz) | Extension beyond | FR-017 builds graph in-memory; FR-062 is COULD; Neo4j adds server dependency — deferred |
+| OOS-G2 (Multi-Language) | FR-026 (Loader) | Extension beyond | Loader handles UTF-8 text; multi-language requires i18n infrastructure — exceeds scope |
+| OOS-G3 (Analytics Dashboard) | FR-061 (Metrics Display) | Extension beyond | FR-061 shows test metrics in Streamlit; analytics dashboard requires persistent DB |
+| OOS-G4 (Batch Processing UI) | FR-059 (Streamlit UI) | Extension beyond | UI handles single file; batch requires job queue — CLI can batch via scripts |
+| OOS-G5 (Mobile App) | FR-059 (Streamlit UI) | Extension beyond | Streamlit is web-accessible; native mobile app exceeds scope entirely |
+
+### Coverage Summary
+
+| Category | OOS Count | FRs Referenced | Primary Constraint |
+|----------|-----------|---------------|-------------------|
+| A: Commercial | 3 | 7 FRs | CONST-002 (portfolio scope) |
+| B: Platforms | 5 | 8 FRs | CONST-003 (fixed tech stack), CONST-006 (time budget) |
+| C: Integration | 5 | 5 FRs | CONST-003 (fixed tech stack), CONST-005 (v0.6.0 target) |
+| D: Advanced ML | 5 | 8 FRs | CONST-006 (time budget), project goals |
+| E: Deployment | 5 | 3 FRs | CONST-002 (portfolio scope) |
+| F: Legacy | 4 | 4 FRs | NFR-014/015/016 (compatibility constraints) |
+| G: Nice-to-Have | 5 | 6 FRs | CONST-005 (v0.6.0 target), CONST-006 (time budget) |
+| **TOTAL** | **32** | **41 unique FRs referenced** | **All 6 constraints invoked** |
+
+---
+
+## Part 9: Research-to-OOS Traceability
+
+### Objective
+
+Every out-of-scope decision is informed by research evidence from v0.0.1–v0.0.4. This section traces which research findings justify specific exclusion decisions, ensuring that scope boundaries are evidence-grounded rather than arbitrary.
+
+### Research Phase → OOS Mapping
+
+| Research Phase | Key Finding | OOS Items Informed | How It Informs Exclusion |
+|---------------|-------------|-------------------|------------------------|
+| v0.0.1 (Spec Deep Dive) | Official spec is stable; no versioning mechanism exists | OOS-F2 (Old Versions) | No legacy versions to support — exclusion is definitional |
+| v0.0.1 (Spec Deep Dive) | 8 specification gaps identified (no validation, no schema, no quality metrics) | OOS-D5 (LLM Validator) | Gaps justify rule-based validation; LLM validation is an alternative approach, not a gap fill |
+| v0.0.1c (Processing Methods) | 8K curated tokens outperforms 200K raw | OOS-B4 (Full RAG) | Structured context is sufficient; full RAG is overkill for the proven token budget model |
+| v0.0.2 (Wild Examples) | File sizes range 159 bytes to 3.7M tokens | OOS-E4 (Horizontal Scaling) | Typical files are <50KB; scaling is a production concern, not a portfolio concern |
+| v0.0.2 (Wild Examples) | 0% LLM Instructions adoption across 18 implementations | OOS-D2 (Fine-Tuned LLM) | No training data exists for llms.txt understanding; base models must suffice |
+| v0.0.3 (Ecosystem Survey) | 75+ tools found; zero provide formal validation or scoring | OOS-C1–C5 (Integrations) | Ecosystem is fragmented; integrating with any single platform is wrong investment |
+| v0.0.3 (Ecosystem Survey) | Adoption Paradox: grassroots adoption, zero search LLM consumption | OOS-A1–A3 (Commercial) | No validated revenue pathway; commercial products are premature |
+| v0.0.3 (Ecosystem Survey) | MCP is the only validated consumption pathway | OOS-B5 (GraphQL API), OOS-C5 (Slack Bot) | API and bot integrations target wrong consumption model; MCP is the channel |
+| v0.0.4 (Best Practices) | 57 automated checks define the quality surface area | OOS-D5 (LLM Validator) | Rule-based checks are deterministic and sufficient; LLM judge adds non-determinism |
+| v0.0.4 (Best Practices) | 100-point composite scoring pipeline validated against gold standards | OOS-G3 (Analytics Dashboard) | Scoring pipeline exists; analytics dashboard is a presentation layer, not a quality concern |
+| v0.0.4d (Differentiators) | DECISION-015: AI coding assistants via MCP as primary target | OOS-B1 (Web Editor), OOS-G5 (Mobile App) | Target audience uses IDEs, not web editors or mobile apps |
+| v0.0.4d (Differentiators) | DECISION-013: Token budgets as first-class constraint | OOS-D3 (Multi-Modal) | Token budgets are text-calibrated; multi-modal content breaks the budgeting model |
+
+---
+
+## Part 10: Inputs from Previous Sub-Parts
+
+| Source | What It Provides | Used In |
+|--------|-----------------|---------|
+| v0.0.1 — Specification Deep Dive | Specification gaps (8 identified); stable spec status; processing method options | OOS-F2 (no legacy versions); OOS-D5 (LLM validator alternative); Part 6 exclusion #1 (not a spec replacement) |
+| v0.0.1c — Context & Processing Patterns | Token budgeting architecture; 8K curated > 200K raw finding; hybrid pipeline design | OOS-B4 (Full RAG not needed); OOS-D3 (multi-modal breaks token model); Scope Fence research-driven check |
+| v0.0.2 — Wild Examples Audit | File size variance (159B–3.7M tokens); quality correlation data; 0% LLM Instructions adoption | OOS-E4 (scaling not needed for typical files); OOS-D2 (no training data for fine-tuning); Part 1 in-scope calibration |
+| v0.0.3 — Ecosystem Survey | 75+ tools, zero validation/scoring; Adoption Paradox; MCP as validated transport | OOS-A1–A3 (commercial premature); OOS-C1–C5 (integration sprawl risk); OOS-B5 (GraphQL targets wrong model) |
+| v0.0.4 — Best Practices Synthesis | 57 checks, 100-pt scoring, 22 anti-patterns, 16 design decisions, MUST/SHOULD/COULD framework | OOS-D5 (rules sufficient); OOS-G3 (scoring exists); Scope Fence decision tree node: "Is it research-driven?" |
+| v0.0.5a — Functional Requirements | 68 FRs (FR-001–FR-068); MoSCoW priorities; 7 module boundaries; acceptance tests | Part 1 in-scope statement; Scope Fence decision tree nodes: "Does it support a main module?" and "Is it COULD have?"; OOS-to-FR traceability (Part 8) |
+| v0.0.5b — Non-Functional Requirements & Constraints | 21 NFRs with targets; 6 hard constraints (CONST-001–006); trade-off resolutions; risk register | All OOS category rationales reference constraints; Scope Fence default decision; Part 5 change management escalation criteria |
+
+---
+
+## Part 11: Outputs to Next Sub-Part
+
+| Output | Consumed By | How It's Used |
+|--------|------------|---------------|
+| 32 out-of-scope items (OOS-A1 through OOS-G5) | v0.0.5d (Success Criteria & MVP) | Defines what is explicitly excluded from MVP pass/fail criteria — if a feature appears in OOS, it cannot be a success criterion |
+| In-scope boundary statement (Part 1) | v0.0.5d (Success Criteria) | The 9 in-scope deliverables become the basis for the MVP Definition of Done checklist |
+| Deferred features registry (Part 4, 11 items) | v0.0.5d (Success Criteria) | Stretch goals in v0.0.5d are drawn from deferred features with lowest effort estimates |
+| Scope Fence decision tree (Part 3) | v0.0.5d (Success Criteria) | Test scenarios in v0.0.5d reference the Scope Fence to validate that the demo covers only in-scope features |
+| Scope change management process (Part 5) | v0.1.0+ (Implementation) | Active governance tool used throughout v0.1–v0.6 to evaluate any new feature idea before implementation |
+| OOS-to-FR traceability (Part 8) | v0.1.0+ (Implementation) | When implementing a FR, developers can check if any related OOS items were considered and rejected — preventing accidental scope creep |
+| Scope health metrics (Part 7) | v0.1.0+ (Implementation) | Biweekly scope health checks use these metrics to detect early signs of scope drift |
+
+---
+
+## Part 12: Limitations & Constraints
+
+1. **OOS items are version-scoped, not permanent exclusions.** Every OOS item includes a "When Feasible" column indicating the version at which the feature becomes viable. The Deferred Features Registry (Part 4) captures the most valuable items with effort estimates for future planning. Exclusion from v0.6.0 does not imply the feature lacks value.
+
+2. **Effort estimates in the Deferred Features Registry are rough.** The 4–30 hour estimates are order-of-magnitude approximations based on research-phase understanding. Actual effort may vary significantly once implementation context is available. These estimates should be refined during post-MVP planning, not used for scheduling.
+
+3. **The Scope Fence decision tree is a heuristic, not an algorithm.** The tree provides structured guidance for evaluating new ideas, but ambiguous cases will arise. The escalation path (Part 5, Step 3) handles edge cases, but ultimately the developer (solo, per CONST-001) makes the final call. The tree reduces decision fatigue; it doesn't eliminate judgment.
+
+4. **Category boundaries are pragmatic, not taxonomic.** Some OOS items could belong to multiple categories (e.g., OOS-D1 "Embeddings" could be Category B "Platform" or Category D "Advanced ML"). The assigned category reflects the primary reason for exclusion, not a formal classification system.
+
+5. **Scope health metrics assume biweekly review cadence.** The metrics in Part 7 are designed for a sprint-style review cycle. If implementation proceeds in a different rhythm (e.g., daily bursts, weekly marathons), the monitoring cadence should adjust accordingly. The key is consistent review, not the specific interval.
+
+6. **The OOS-to-FR traceability (Part 8) is not exhaustive.** Each OOS item is mapped to the most directly related FRs. Some OOS items have tangential relationships to additional FRs that are not captured. The mapping prioritizes clarity over completeness — the goal is to answer "why was this excluded?" not "what else could this have touched?"
+
+---
+
+## Part 13: User Stories
+
+> As a **solo developer building DocStratum**, I need clearly defined scope boundaries with a structured decision process so that when I'm mid-implementation and think "wouldn't it be cool to also add X?" I have a documented, pre-committed answer that prevents me from derailing the project timeline. The Scope Fence decision tree is my first line of defense against the scope creep that kills solo projects.
+
+> As a **solo developer managing my own time budget (CONST-006: 40–60 hours)**, I need a deferred features registry that captures good ideas without obligating me to implement them, so that I can say "not now, but documented for later" instead of either losing the idea or losing time implementing it prematurely. The registry preserves intellectual investment without spending implementation hours.
+
+> As a **portfolio evaluator reviewing DocStratum**, I need evidence that the developer made deliberate, defensible scope decisions — not just "we ran out of time" but "we evaluated this against clear criteria and deferred it with rationale." The 32 OOS items with justifications, the Scope Fence decision tree, and the explicit exclusion statements demonstrate mature project management and engineering discipline.
+
+---
+
 ## Deliverables
 
 - [x] Clear, explicit in-scope statement (what DocStratum is)
-- [x] 32+ out-of-scope items organized by category with detailed justifications
-- [x] "Scope Fence" decision tree with examples
-- [x] Deferred features registry (10+ valuable ideas for future versions)
+- [x] 32+ out-of-scope items organized by 7 categories with detailed justifications
+- [x] "Scope Fence" decision tree with 3 worked examples
+- [x] Deferred features registry (11 valuable ideas for future versions with effort estimates)
 - [x] Scope change management process (5-step procedure)
-- [x] Explicit exclusions with rationales
-- [x] Scope health metrics for monitoring
+- [x] Explicit exclusions with rationales (7 "what DocStratum is NOT" statements)
+- [x] Scope health metrics for monitoring (5 metrics with targets and failure actions)
+- [x] OOS-to-FR traceability matrix mapping all 32 OOS items to 41 unique functional requirements
+- [x] Research-to-OOS traceability linking 12 key research findings to OOS decisions
+- [x] Inputs from previous sub-parts documented (7 sources mapped to specific outputs)
+- [x] Outputs to next sub-part documented (7 outputs mapped to consumers)
+- [x] Limitations acknowledged with rationale (6 documented limitations)
+- [x] User stories for 3 personas (developer, time-manager, evaluator)
 
 ---
 
@@ -396,12 +630,19 @@ Every 2 weeks, check:
 
 - [x] In-scope boundary is crystal clear (anyone can determine if a feature is in scope)
 - [x] Every out-of-scope item includes: what it is, why excluded, when feasible, what would change
-- [x] Scope Fence decision tree is usable (clear flow, examples provided)
-- [x] Deferred features are genuinely valuable (not trash ideas)
+- [x] Scope Fence decision tree is usable (clear flow, 3 examples provided)
+- [x] Deferred features are genuinely valuable (not trash ideas) with effort estimates
 - [x] Scope change management process is lightweight (won't stall development)
 - [x] Exclusions list provides confidence that scope is defensible
 - [x] Project team (you) commits to these boundaries
 - [x] Zero scope creep expected during v0.1–v0.6 with these safeguards
+- [x] OOS-to-FR traceability complete (all 32 OOS items mapped to related FRs)
+- [x] Research-to-OOS traceability complete (OOS decisions traced to v0.0.1–v0.0.4 evidence)
+- [x] Inputs from previous sub-parts documented
+- [x] Outputs to next sub-part documented
+- [x] Limitations & constraints acknowledged
+- [x] User stories defined for target personas
+- [x] Document is self-contained and structurally consistent with v0.0.5a and v0.0.5b
 
 ---
 
