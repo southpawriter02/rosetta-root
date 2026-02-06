@@ -1,0 +1,315 @@
+# v0.0.5b — Non-Functional Requirements & Constraints
+
+> **Sub-Part:** Define all non-functional requirements (performance, usability, maintainability, compatibility, security) and hard constraints that will guide implementation decisions and quality standards.
+
+---
+
+## Sub-Part Overview
+
+---
+
+## Objective
+
+While v0.0.5a defines WHAT the system must do (functionality), this sub-part defines HOW WELL it must do it and what constraints are immovable. Non-functional requirements establish performance targets, quality standards, deployment constraints, and technical boundaries.
+
+### Success Looks Like
+
+- 15+ formally identified non-functional requirements (NFR-001 through NFR-015+)
+- Performance targets expressed in measurable units (ms, MB, token count, accuracy %)
+- Usability standards tied to user workflows (CLI, errors, documentation)
+- Maintainability targets (code quality, test coverage, dependency management)
+- Security requirements protecting sensitive data and system integrity
+- Compatibility matrix defining supported platforms and versions
+- Verification methods for each NFR (how we'll test it)
+
+---
+
+## Scope Boundaries
+
+### In Scope
+
+- Performance targets (latency, throughput, memory, token usage)
+- Usability standards (CLI design, error messages, documentation quality)
+- Maintainability metrics (code quality, test coverage, technical debt)
+- Compatibility requirements (Python versions, LLM providers, OS support)
+- Security constraints (no secrets, input validation, URL safety)
+- Hard constraints from project scope (solo developer, portfolio, time budget)
+
+### Out of Scope
+
+- Functional behavior (that's v0.0.5a)
+- Scope boundaries (that's v0.0.5c)
+- Success metrics and test scenarios (those are v0.0.5d)
+- Detailed implementation strategies
+- Third-party service SLAs (we don't control external APIs)
+
+---
+
+## Dependencies
+
+```
+v0.0.1–4 — Research Phase (COMPLETED)
+    ├── Validated that validation levels 0-4 are feasible
+    ├── Confirmed agent integration is possible
+    ├── Identified performance constraints (token budgets)
+    └── Established quality standards from real-world audit
+
+                            v
+v0.0.5b — Non-Functional Requirements (THIS TASK)
+                            │
+        ┌───────────────────┼───────────────────┐
+        v                   v                   v
+    v0.1.0            v0.2.0              v0.3.0
+  (Schema &        (Validation &      (Parsing &
+   Validation)      Context Build)     Loading)
+```
+
+---
+
+## 1. Performance Requirements (NFR-001 to NFR-005)
+
+### Objective
+
+Define speed and resource usage targets across all operations. These are critical for agent usability (LLMs have timeout limits) and developer experience (fast feedback loops).
+
+| ID | Requirement | Target | Verification Method | Priority | Notes |
+|---|---|---|---|---|---|
+| NFR-001 | **Parse time (single llms.txt file)** | < 500ms for typical files (≤ 50KB) | Benchmark with 20+ real files; measure wall-clock time | MUST | Includes file load, tokenization, and validation L0–L1 |
+| NFR-002 | **Context build time (all 3 layers)** | < 2s for typical llms.txt (≤ 100 entries) | Benchmark with 10+ files; measure end-to-end time | MUST | May vary by file complexity (concept count, relationship count) |
+| NFR-003 | **Agent response latency (baseline)** | < 8s for typical query | Measure 20+ test queries; report p50, p95, p99 | SHOULD | Includes context fetch + LLM call; exclude human input time |
+| NFR-004 | **Agent response latency (enhanced with DocStratum context)** | < 12s for typical query | Measure 20+ test queries; report p50, p95, p99 | SHOULD | Acceptable overhead: +4s from additional context processing |
+| NFR-005 | **Memory usage (peak, single llms.txt)** | < 200MB for typical files | Profile with memory_profiler; test with largest known file | SHOULD | Excludes LLM model weights (in external API) |
+
+### Performance Context
+
+The performance targets are calibrated to agent use cases:
+
+- **Parse time (500ms):** Agents often make queries in real-time; > 1s feels slow to users
+- **Context build (2s):** Token budgets require on-demand context assembly; users tolerate 2s waits
+- **Agent response (8–12s):** LLM API calls typically take 3–8s; our overhead should not dominate
+- **Memory (200MB):** Assume agent runs on modest hardware; avoid OOM errors
+
+---
+
+## 2. Usability Requirements (NFR-006 to NFR-009)
+
+### Objective
+
+Define quality standards for human-facing workflows. The system serves two user categories: (1) developers integrating DocStratum into agents, and (2) portfolio viewers evaluating the project.
+
+| ID | Requirement | Target | Verification Method | Priority | Notes |
+|---|---|---|---|---|---|
+| NFR-006 | **CLI error messages** | Clear, actionable, include line/code reference | 100% of errors include: severity, code, message, remediation | SHOULD | Example: "E003 (line 42): Missing H2 section. Every llms.txt requires at least one '## Section' header." |
+| NFR-007 | **Documentation coverage** | Every public API documented with docstrings + examples | 100% of modules + functions have docstrings; README covers main flows | SHOULD | Use Google-style docstrings; include example code blocks |
+| NFR-008 | **Validation error output** | Max 1 error message per issue; group related issues | Validation output < 100 lines for typical file; top issues highlighted | SHOULD | Avoid overwhelming developers with 50+ errors for one root cause |
+| NFR-009 | **Demo UI responsiveness** | UI elements respond within 200ms to user input | All Streamlit widgets respond in < 200ms (excluding external API calls) | SHOULD | Buttons, toggles, dropdowns should feel snappy |
+
+### Usability Context
+
+These standards reflect two audiences:
+
+- **Developers:** Need precise error messages, comprehensive docs, clear API contracts
+- **Portfolio viewers:** See clean UI, impressive demo, professional error handling
+
+---
+
+## 3. Maintainability Requirements (NFR-010 to NFR-013)
+
+### Objective
+
+Define code quality and sustainability standards. These ensure the project remains understandable and modifiable as features are added.
+
+| ID | Requirement | Target | Verification Method | Priority | Notes |
+|---|---|---|---|---|---|
+| NFR-010 | **Test coverage** | ≥ 80% line coverage for core modules (validation, parsing, context building) | Run pytest with coverage; generate coverage report | SHOULD | Accept < 80% for demo/UI code; require ≥ 80% for data processing |
+| NFR-011 | **Code style consistency** | 100% compliance with Black (formatter) + Ruff (linter) | Run Black + Ruff in CI; fail build if violations detected | SHOULD | Reduces review friction; ensures consistent code appearance |
+| NFR-012 | **Dependency management** | Minimize direct dependencies; pin versions in requirements.txt | Use only required dependencies; justify each; pin versions for reproducibility | SHOULD | Direct deps target: < 15 (excluding dev deps) |
+| NFR-013 | **Documentation-to-code ratio** | Substantial comments in complex modules (parsing, context building) | Every function > 20 lines includes docstring; complex algorithms include inline comments | SHOULD | Goal: code understandable without hunting for external docs |
+
+### Maintainability Context
+
+These standards ensure the project is:
+
+- **Testable:** Comprehensive tests catch regressions and enable confident refactoring
+- **Readable:** Consistent style and documentation reduce cognitive load
+- **Sustainable:** Minimal dependencies ease updates and reduce supply-chain risk
+- **Understandable:** Well-commented code and clear structure support future work
+
+---
+
+## 4. Compatibility Requirements (NFR-014 to NFR-018)
+
+### Objective
+
+Define which platforms, versions, and services the system must support.
+
+| ID | Requirement | Target | Verification Method | Priority | Notes |
+|---|---|---|---|---|---|
+| NFR-014 | **Python version support** | Python 3.9+ | Test on 3.9, 3.10, 3.11, 3.12 in CI | SHOULD | Drop support for 3.8 (EOL); target recent stable releases |
+| NFR-015 | **LLM provider compatibility** | OpenAI (GPT-4, GPT-3.5), Claude (via Anthropic API), local via LiteLLM | Test agent with 2+ providers; verify output quality | SHOULD | Use LiteLLM abstraction layer to reduce provider-specific code |
+| NFR-016 | **Operating system support** | Linux, macOS, Windows | Test on each OS (CI matrices or manual spot checks) | SHOULD | Use cross-platform path handling; test file I/O on each OS |
+| NFR-017 | **URL handling (HTTP/HTTPS)** | Support HTTPS; reject HTTP except localhost | All real URLs must use HTTPS; warn on HTTP in non-test contexts | SHOULD | Protects user data from MITM attacks |
+| NFR-018 | **Input validation** | Reject invalid URLs, oversized files, malformed JSON | Validate all external inputs; max file size 50MB; validate JSON before parsing | SHOULD | Prevent security issues and resource exhaustion |
+
+### Compatibility Context
+
+- **Python versions:** Support recent versions (3.9–3.12); assume modern features available
+- **LLM providers:** Abstract via LiteLLM; enable swapping providers without code changes
+- **Operating systems:** Use pathlib (not os.path); test on Linux, macOS, Windows
+- **Security:** HTTPS-only for real domains; reject malicious inputs
+
+---
+
+## 5. Security Requirements (NFR-019 to NFR-021)
+
+### Objective
+
+Protect user data and system integrity. DocStratum processes documentation files, which may contain sensitive information.
+
+| ID | Requirement | Target | Verification Method | Priority | Notes |
+|---|---|---|---|---|---|
+| NFR-019 | **No credentials in llms.txt** | Detect and warn if llms.txt contains API keys, tokens, passwords | Scan for common secret patterns (regex); warn user if detected | SHOULD | Example pattern: `api_key=sk-.*` |
+| NFR-020 | **URL validation** | Validate all URLs before fetching; reject dangerous protocols | Whitelist http/https only; parse with urllib; validate scheme/netloc | SHOULD | Prevent SSRF attacks (local file access via URLs) |
+| NFR-021 | **Input sanitization** | Sanitize file paths and URLs before using in commands or logs | Never use unsanitized user input in shell commands; escape special chars in logs | SHOULD | Prevent injection attacks; ensure logs are safe to view |
+
+### Security Context
+
+DocStratum is a portfolio project, not handling sensitive production data. However, good security practices are:
+
+- **Expected in professional code:** Demonstrate security awareness
+- **Easy to implement:** Validation + sanitization are straightforward
+- **Good for users:** Protect developers who use DocStratum
+
+---
+
+## 6. Hard Constraints (from Agentic Instructions & Project Scope)
+
+### Objective
+
+Document immovable boundaries that define what the project is and is not.
+
+| ID | Constraint | Rationale | Impact | Notes |
+|---|---|---|---|---|
+| CONST-001 | **Solo developer** | Project is portfolio piece; no team collaboration | Implementation must support single-author workflows; no complex branching/PR merging | Affects testing strategy: emphasize comprehensive unit tests over integration tests |
+| CONST-002 | **Portfolio project scope** | Not a commercial product; goal is to demonstrate capabilities | No production deployment, no SaaS infrastructure, no 24/7 support | Focus on code quality + documentation; demo can be MVP quality |
+| CONST-003 | **Fixed tech stack** | Pydantic, LangChain, Streamlit, Anthropic API are chosen | Do not propose alternatives (FastAPI, Hugging Face Transformers, etc.) unless asked | Enables focused learning and professional expertise |
+| CONST-004 | **Research-driven design** | All design decisions must be justified by v0.0.1–4 research | Implement what's been researched; don't speculate about unvalidated features | Maintains project coherence; avoids scope creep |
+| CONST-005 | **v0.6.0 target release** | Project scope ends at MVP (v0.6.0); future versions out of scope | Define v0.6.0 feature list precisely in v0.0.5d; do not add to scope mid-project | Protects timeline; enables clear success criteria |
+| CONST-006 | **Time budget: 40-60 hours** | Solo developer with competing commitments | Estimate carefully; prioritize ruthlessly; cut low-value features | Affects which SHOULDs/COULDs get implemented |
+
+---
+
+## 7. Quality Attributes Summary
+
+### Matrix: NFRs by Quality Dimension
+
+| Quality Dimension | NFRs | Key Targets |
+|---|---|---|
+| **Performance** | NFR-001–005 | Parse < 500ms, context < 2s, agent latency < 12s, memory < 200MB |
+| **Usability** | NFR-006–009 | Clear errors, complete docs, clean UI, responsive widgets |
+| **Maintainability** | NFR-010–013 | Test coverage ≥ 80%, Black + Ruff compliant, minimal deps, well-documented |
+| **Compatibility** | NFR-014–018 | Python 3.9+, multi-provider LLM support, cross-OS, HTTPS-only, input validated |
+| **Security** | NFR-019–021 | No credentials exposed, URLs validated, inputs sanitized |
+| **Constraints** | CONST-001–006 | Solo dev, portfolio scope, fixed tech stack, research-driven, v0.6.0 release, 40–60 hour budget |
+
+---
+
+## 8. Trade-Off Analysis
+
+Given time and resource constraints, here are explicit trade-offs:
+
+### Performance vs. Feature Completeness
+
+| Trade-Off | Decision | Rationale |
+|---|---|---|
+| **Optimize for latency or for accuracy?** | Latency (parse < 500ms, context < 2s) | Agents have timeout budgets; fast feedback loop is essential |
+| **Support streaming or bulk mode?** | Bulk mode (load entire llms.txt); streaming is COULD | Simpler implementation; acceptable for typical file sizes |
+| **Cache aggressively or keep fresh?** | Cache with TTL (24h default); manual invalidate option | Reduces redundant parsing; balances freshness with performance |
+
+### Features vs. Documentation
+
+| Trade-Off | Decision | Rationale |
+|---|---|---|
+| **Implement FR-050 (agent templates) or focus on core features?** | Defer templates to post-MVP | Core agents (baseline + enhanced) are sufficient for demo |
+| **Implement FR-062 (graph visualization) or basic UI?** | Simple UI (tables + text); defer fancy graphs | Streamlit can display results effectively without D3.js complexity |
+| **Write blog post or focus on code?** | Focus on code + comprehensive README | Portfolio evaluators value clean code more than external content |
+
+### Scope vs. Timeline
+
+| Trade-Off | Decision | Rationale |
+|---|---|---|
+| **Support 5 LLM providers or 2?** | 2 providers (OpenAI, Claude); multi-provider via LiteLLM abstraction | Cover main use cases; LiteLLM enables future expansion without refactoring |
+| **Deploy Streamlit or run locally?** | Local Streamlit demo | Deployment adds infrastructure complexity; portfolio can include `streamlit run` instructions |
+| **Implement all validation levels (0–4) or core levels (0–2)?** | All levels (0–4); COULD features can be skipped | Research has validated all levels; important for completeness |
+
+---
+
+## 9. Definition of Quality for Each Module
+
+### By Module: Quality Standards
+
+| Module | Performance Target | Test Coverage Target | Documentation Standard |
+|---|---|---|---|
+| **Schema & Validation** | Parse < 500ms | ≥ 85% | Every validator function has docstring + example |
+| **Content Structure** | Context build < 2s | ≥ 80% | Every layer (Master Index, Concepts, Examples) explained with diagrams |
+| **Parser & Loader** | File load < 200ms | ≥ 85% | Grammar reference + pseudocode included |
+| **Context Builder** | Pipeline < 1.5s | ≥ 75% | Token budgeting algorithm documented with examples |
+| **Agent Integration** | LLM call < 8–12s | ≥ 70% (integration tests okay) | System prompts + LangChain integration documented |
+| **A/B Testing** | All tests complete < 5 min for 50 queries | ≥ 70% | Test design + metrics explained; statistical methods justified |
+| **Demo Layer** | UI response < 200ms | ≥ 60% (UI code has lower bar) | User guide + settings explained; example workflow documented |
+
+---
+
+## 10. Risk Mitigation
+
+### Key Risks and Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| **Performance regression (new feature slows parsing)** | Medium | High | Automated performance regression tests in CI; establish baseline early |
+| **LLM API outages (OpenAI/Anthropic down)** | Low | High | Graceful degradation; provide offline demo data; document fallback |
+| **Scope creep (new requirements discovered mid-project)** | High | High | Rigorous scope boundary definition (v0.0.5c); require explicit approval for out-of-scope work |
+| **Token budget exhausted (context too large)** | Medium | High | Implement token budgeting early (FR-033); prioritize filtering over completeness |
+| **Test coverage gaps (critical code untested)** | Medium | Medium | Measure coverage in CI; require ≥ 80% before release; identify gaps early |
+| **Documentation falls behind code** | High | Medium | Write docs alongside code; README as living document; examples in code comments |
+
+---
+
+## Deliverables
+
+- [x] 21 formally identified non-functional requirements (NFR-001 through NFR-021+)
+- [x] Performance requirements with specific targets (latency ms, memory MB, coverage %)
+- [x] Usability standards tied to user workflows
+- [x] Maintainability metrics (test coverage, style, documentation)
+- [x] Compatibility matrix (Python, LLM providers, OS)
+- [x] Security requirements protecting data integrity
+- [x] 6 hard constraints from project scope
+- [x] Trade-off analysis across performance/features/scope
+- [x] Per-module quality standards
+- [x] Risk mitigation strategies
+
+---
+
+## Acceptance Criteria
+
+- [x] Every NFR has unique ID (NFR-###)
+- [x] Every NFR includes measurable target (ms, MB, %, coverage)
+- [x] Every NFR includes verification method (how we test it)
+- [x] Performance targets are realistic for agent use cases (calibrated to LLM timeouts)
+- [x] Usability standards reflect both developer and portfolio audiences
+- [x] Maintainability targets support code quality (tests, style, docs)
+- [x] Compatibility covers main platforms/versions/providers
+- [x] Security requirements address data protection and input validation
+- [x] Hard constraints documented and ratified
+- [x] Trade-offs explicitly analyzed and resolved
+- [x] Document is self-contained and implementable
+
+---
+
+## Next Step
+
+Once this sub-part is approved, proceed to:
+
+**v0.0.5c — Scope Definition & Out-of-Scope Registry**
+
+This sub-part defines explicit scope boundaries and the "Scope Fence" decision tree for evaluating new feature ideas during implementation.

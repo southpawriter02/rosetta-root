@@ -1,8 +1,8 @@
-# The Rosetta Root
+# The DocStratum
 
 > Don't just auto-generate a sitemap. Hand-craft the "Platinum Standard" llms.txt file.
 
-A semantic translation layer for AI agents browsing documentation. The Rosetta Root is a hand-crafted `/llms.txt` architecture designed to eliminate **context collapse** — the systematic loss of meaning when LLMs encounter unstructured, navigation-heavy, or semantically ambiguous web content.
+A semantic translation layer for AI agents browsing documentation. The DocStratum is a hand-crafted `/llms.txt` architecture designed to eliminate **context collapse** — the systematic loss of meaning when LLMs encounter unstructured, navigation-heavy, or semantically ambiguous web content.
 
 ---
 
@@ -12,7 +12,7 @@ AI agents reading documentation websites today face input quality issues, not re
 
 ## The Approach
 
-The Rosetta Root provides three layers of structured context that no sitemap or auto-generated index can:
+The DocStratum provides three layers of structured context that no sitemap or auto-generated index can:
 
 - **Master Index** — Canonical URLs, content types, and freshness timestamps. Answers: *"What exists?"*
 - **Concept Map** — Definitions, dependency graphs, and anti-patterns. Answers: *"How do things relate?"*
@@ -22,7 +22,7 @@ The core thesis: a Technical Writer with strong Information Architecture skills 
 
 ## What This Project Builds
 
-A toolkit for authoring, validating, and demonstrating the effectiveness of hand-crafted `/llms.txt` files. The system includes schema validation, context assembly within token budgets, side-by-side agent comparison (baseline vs. Rosetta-enhanced), and quality metrics — all designed to prove that curated structure beats engineering complexity.
+A toolkit for authoring, validating, and demonstrating the effectiveness of hand-crafted `/llms.txt` files. The system includes schema validation, context assembly within token budgets, side-by-side agent comparison (baseline vs. DocStratum-enhanced), and quality metrics — all designed to prove that curated structure beats engineering complexity.
 
 ## Tech Stack
 
