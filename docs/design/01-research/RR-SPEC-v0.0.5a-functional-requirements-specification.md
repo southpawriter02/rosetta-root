@@ -6,6 +6,10 @@
 
 ## Sub-Part Overview
 
+This sub-part converts the collective findings from four completed research phases — v0.0.1 (Specification Deep Dive), v0.0.2 (Wild Examples Audit), v0.0.3 (Ecosystem Survey), and v0.0.4 (Best Practices Synthesis) — into 68 formally identified functional requirements (FR-001 through FR-068). Requirements are organized across 7 software modules (Schema & Validation, Content Structure, Parser & Loader, Context Builder, Agent Integration, A/B Testing Harness, and Demo Layer) plus 3 cross-module concerns. Each requirement carries a unique ID, MoSCoW priority, acceptance test, research source trace, and target implementation module — forming a complete traceability chain from research evidence through specification to implementation target.
+
+**Distribution:** 32 MUST requirements define the MVP, 29 SHOULD requirements strengthen quality and usability, and 7 COULD requirements represent stretch goals. All 68 requirements trace to at least one completed research phase and forward-map to a specific implementation module in v0.1.x–v0.6.x.
+
 ---
 
 ## Objective
@@ -175,7 +179,7 @@ Transform parsed llms.txt and concept maps into optimized agent context, respect
 | FR-032 | Processing methods: Implement all v0.0.1c processing methods (discovery, synthesis, ranking, filtering) | MUST | Apply each method to 5+ llms.txt files; verify results are distinct and meaningful | v0.0.1c (processing methods) | v0.4.3 (ContextProcessor) |
 | FR-033 | Token budgeting: Estimate tokens for each layer (Master Index, Concept Map, Few-Shot Bank) | MUST | Measure token count for each layer; store estimates; use in context selection algorithm | v0.0.1c (token budgeting) | v0.4.3 (TokenEstimator) |
 | FR-034 | Hybrid pipeline: Combine layers (0, 1, 2) into single agent context respecting token budget | MUST | Load llms.txt; build all layers; pack into context w/ 4K token limit; verify relevance > baseline | v0.0.1c (hybrid pipeline) | v0.4.4 (PipelineOrchestrator) |
-| FR-035 | Query-aware context selection: Given a query, select most relevant entries, concepts, examples | MUST | Feed 10+ test queries; verify top-3 results are relevant; compare with keyword match baseline | v0.4.0 (agent testing) | v0.4.4 (QuerySelector) |
+| FR-035 | Query-aware context selection: Given a query, select most relevant entries, concepts, examples | MUST | Feed 10+ test queries; verify top-3 results are relevant; compare with keyword match baseline | v0.0.4 (agent testing) | v0.4.4 (QuerySelector) |
 | FR-036 | Context filtering: Remove low-utility entries (empty sections, duplicate concepts, low-quality examples) | SHOULD | Mark 20+ entries as low-utility; filter them; verify filtered context is 20–30% smaller | v0.0.4 (best practices) | v0.4.3 (ContextFilter) |
 | FR-037 | Context ranking: Prioritize entries by relevance (freshness, authority, specificity) using configurable weights | SHOULD | Rank entries for 5+ queries; expose weights; modify weights; re-rank; verify results change appropriately | v0.0.4 (best practices) | v0.4.4 (Ranker) |
 | FR-038 | Fallback context: If no entries match query, provide semantic fallback (related concepts, generalized examples) | COULD | Query for non-existent concept; verify agent still receives related context from concept map | v0.0.1c (synthesis) | v0.4.4 (FallbackSelector) |
@@ -199,7 +203,7 @@ Integrate DocStratum context into LLM agents and demonstrate improved performanc
 | FR-045 | Agent configuration: Expose tunable parameters (model, temperature, top_p, context_layers) | SHOULD | Create config file; modify 3+ parameters; re-run agent; verify changes take effect | v0.0.4 (usability) | v0.5.0 (Config) |
 | FR-046 | Retrieval strategy: Implement keyword search, semantic search (embedding-based), and hybrid | SHOULD | Test each strategy on 10+ queries; measure precision/recall; expose strategy choice in config | v0.0.1c (processing methods) | v0.4.4 (Retriever) |
 | FR-047 | Few-shot in-context learning: Inject 3–5 Q&A examples before main agent query | MUST | Select 3 most relevant examples for query; prepend to agent prompt; verify agent references them | v0.0.1c (few-shot) | v0.5.1 (FewShotInjector) |
-| FR-048 | Agent testing harness: Compare baseline vs. enhanced agent on same query set | MUST | Run both agents on 20+ test queries; measure accuracy, latency, token usage; display comparison | v0.4.0 (test harness) | v0.5.2 (TestHarness) |
+| FR-048 | Agent testing harness: Compare baseline vs. enhanced agent on same query set | MUST | Run both agents on 20+ test queries; measure accuracy, latency, token usage; display comparison | v0.0.4 (test harness) | v0.5.2 (TestHarness) |
 | FR-049 | Trace and logging: Log all agent decisions (context selected, prompt used, model response, latency) | SHOULD | Run agent; inspect logs; verify trace includes decision info; exportable as JSON | v0.0.4 (debugging) | v0.5.2 (Logger) |
 | FR-050 | Support agent templates (chatbot, Q&A bot, documentation copilot) with different prompt strategies | COULD | Implement 2 templates; compare outputs for same query; verify template effects visible | v0.0.4 (patterns) | v0.5.3 (Templates) |
 
@@ -213,12 +217,12 @@ Implement rigorous A/B testing infrastructure to quantify DocStratum's impact on
 
 | ID | Requirement | Priority | Acceptance Test | Source | Target Module |
 |---|---|---|---|---|---|
-| FR-051 | Query runner: Load test queries from file; run each against baseline and enhanced agent | MUST | Load 20+ test queries; run both agents; collect results (response, latency, tokens) | v0.4.0 (test design) | v0.5.2 (QueryRunner) |
-| FR-052 | Response comparison: Analyze baseline vs. enhanced responses for accuracy, completeness, relevance | MUST | Implement 3+ comparison metrics; score 20+ response pairs; show side-by-side diffs | v0.4.0 (test design) | v0.5.2 (ResponseAnalyzer) |
-| FR-053 | Metrics collection: Capture accuracy (LLM judge score), latency, token usage, success rate | MUST | Run tests; collect all metrics; compute mean/std/percentiles; export as table | v0.4.0 (test design) | v0.5.2 (MetricsCollector) |
-| FR-054 | Statistical significance: Compute p-values for accuracy improvements; verify not due to chance | SHOULD | Run 50+ test pairs; compute t-test p-value; flag as significant if p < 0.05 | v0.4.0 (test design) | v0.5.2 (StatisticsEngine) |
-| FR-055 | Baseline definition: Establish quantitative baseline metrics (accuracy, latency, tokens) | MUST | Run baseline agent on 50+ queries; compute mean metrics; store as benchmark | v0.4.0 (test design) | v0.5.2 (BaselineRecorder) |
-| FR-056 | Test query design: Include 4 test categories (disambiguation, freshness, few-shot, integration) | MUST | Create 5+ queries per category (20+ total); verify each tests intended capability | v0.0.5d (test scenarios) | v0.5.2 (TestDesigner) |
+| FR-051 | Query runner: Load test queries from file; run each against baseline and enhanced agent | MUST | Load 20+ test queries; run both agents; collect results (response, latency, tokens) | v0.0.4 (test design) | v0.5.2 (QueryRunner) |
+| FR-052 | Response comparison: Analyze baseline vs. enhanced responses for accuracy, completeness, relevance | MUST | Implement 3+ comparison metrics; score 20+ response pairs; show side-by-side diffs | v0.0.4 (test design) | v0.5.2 (ResponseAnalyzer) |
+| FR-053 | Metrics collection: Capture accuracy (LLM judge score), latency, token usage, success rate | MUST | Run tests; collect all metrics; compute mean/std/percentiles; export as table | v0.0.4 (test design) | v0.5.2 (MetricsCollector) |
+| FR-054 | Statistical significance: Compute p-values for accuracy improvements; verify not due to chance | SHOULD | Run 50+ test pairs; compute t-test p-value; flag as significant if p < 0.05 | v0.0.4 (test design) | v0.5.2 (StatisticsEngine) |
+| FR-055 | Baseline definition: Establish quantitative baseline metrics (accuracy, latency, tokens) | MUST | Run baseline agent on 50+ queries; compute mean metrics; store as benchmark | v0.0.4 (test design) | v0.5.2 (BaselineRecorder) |
+| FR-056 | Test query design: Include 4 test categories (disambiguation, freshness, few-shot, integration) | MUST | Create 5+ queries per category (20+ total); verify each tests intended capability | v0.0.4 (differentiators) | v0.5.2 (TestDesigner) |
 | FR-057 | Test result export: Save results (queries, responses, scores, metrics) to JSON/CSV for analysis | MUST | Run tests; export to both formats; verify parseable; verify all data present | v0.0.4 (reporting) | v0.5.2 (Exporter) |
 | FR-058 | Regression testing: Re-run baseline tests automatically to catch performance regressions | SHOULD | Store baseline results; modify code; re-run; compare; flag if regression > 5% | v0.0.4 (quality) | v0.5.2 (Regression Tester) |
 
@@ -232,9 +236,9 @@ Create a user-friendly Streamlit demo application that showcases DocStratum's va
 
 | ID | Requirement | Priority | Acceptance Test | Source | Target Module |
 |---|---|---|---|---|---|
-| FR-059 | Streamlit UI: Load llms.txt (URL or file upload); display parsed structure and validation results | MUST | Deploy Streamlit app; upload llms.txt; verify parsed structure displayed; validation results shown | v0.4.0 (demo) | v0.6.0 (StreamlitApp) |
-| FR-060 | Side-by-side agent view: Show query input; run both agents; display responses in parallel columns | MUST | Type query in app; click "Run"; verify baseline response in left column, enhanced in right column | v0.4.0 (demo) | v0.6.0 (SideBySideView) |
-| FR-061 | Metrics display: Show comparison metrics (accuracy, latency, tokens) with visual indicators (badges, charts) | SHOULD | Run demo query; display accuracy scores, latency in ms, token counts; use color to highlight winner | v0.4.0 (demo) | v0.6.0 (MetricsDisplay) |
+| FR-059 | Streamlit UI: Load llms.txt (URL or file upload); display parsed structure and validation results | MUST | Deploy Streamlit app; upload llms.txt; verify parsed structure displayed; validation results shown | v0.0.4 (demo) | v0.6.0 (StreamlitApp) |
+| FR-060 | Side-by-side agent view: Show query input; run both agents; display responses in parallel columns | MUST | Type query in app; click "Run"; verify baseline response in left column, enhanced in right column | v0.0.4 (demo) | v0.6.0 (SideBySideView) |
+| FR-061 | Metrics display: Show comparison metrics (accuracy, latency, tokens) with visual indicators (badges, charts) | SHOULD | Run demo query; display accuracy scores, latency in ms, token counts; use color to highlight winner | v0.0.4 (demo) | v0.6.0 (MetricsDisplay) |
 | FR-062 | Concept map visualization: Interactive graph showing concepts and relationships | COULD | Render D3.js or Plotly graph; allow click-to-expand; show edges and node metadata on hover | v0.0.1c (concept map) | v0.6.0 (GraphVisualizer) |
 | FR-063 | Few-shot examples sidebar: List few-shot examples relevant to current query | SHOULD | As user types query, update sidebar to show top 3 relevant examples; highlight matching concepts | v0.0.1c (few-shot) | v0.6.0 (ExamplesSidebar) |
 | FR-064 | Settings panel: Allow user to adjust context layers, retrieval strategy, model, temperature | SHOULD | Expose toggles for Layer 0/1/2, choice of retrieval, model selection; verify changes affect agent output | v0.0.4 (usability) | v0.6.0 (SettingsPanel) |
@@ -256,12 +260,12 @@ Create a user-friendly Streamlit demo application that showcases DocStratum's va
 
 ### By MoSCoW Category
 
-| Category | Count | Examples |
+| Category | Count | FR IDs |
 |---|---|---|
-| **MUST** | 22 | FR-001, FR-003, FR-007, FR-013, FR-016, FR-024, FR-026, FR-032, FR-039, FR-040, FR-047, FR-051, FR-052, FR-053, FR-055, FR-056, FR-059, FR-060 |
-| **SHOULD** | 35 | FR-005, FR-006, FR-009, FR-010, FR-012, FR-014–015, FR-017–019, FR-023, FR-028–030, FR-033–037, FR-043–046, FR-049, FR-052, FR-054, FR-056–058, FR-061, FR-063–064 |
-| **COULD** | 8 | FR-022, FR-031, FR-038, FR-050, FR-062, FR-065, FR-068 |
-| **TOTAL** | 65+ | — |
+| **MUST** | 32 | FR-001–004, FR-007–008, FR-011, FR-013, FR-016, FR-020, FR-024–027, FR-032–035, FR-039–042, FR-047–048, FR-051–053, FR-055–057, FR-059–060 |
+| **SHOULD** | 29 | FR-005–006, FR-009–010, FR-012, FR-014–015, FR-017–019, FR-021, FR-023, FR-028–030, FR-036–037, FR-043–046, FR-049, FR-054, FR-058, FR-061, FR-063–064, FR-066–067 |
+| **COULD** | 7 | FR-022, FR-031, FR-038, FR-050, FR-062, FR-065, FR-068 |
+| **TOTAL** | 68 | — |
 
 ### By Module
 
@@ -324,7 +328,7 @@ FR-034 (Hybrid pipeline)
 
 ## Deliverables
 
-- [x] 65+ formally identified functional requirements (FR-001 through FR-068+)
+- [x] 68 formally identified functional requirements (FR-001 through FR-068)
 - [x] Requirements organized by 7 software modules
 - [x] Each requirement includes: ID, description, priority, acceptance test, source, target module
 - [x] Traceability matrix connecting research to requirements and requirements to implementation
