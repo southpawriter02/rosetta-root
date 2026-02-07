@@ -12,5 +12,41 @@ Model Categories:
     Constants           Canonical section names, token budget tiers, check IDs
 """
 
-# TODO (v0.1.2): Add public API re-exports once schema submodules are implemented.
-# See v0.1.1 §Package Initialization for the full re-export list.
+from docstratum.schema.constants import (
+    ANTI_PATTERN_REGISTRY,
+    CANONICAL_SECTION_ORDER,
+    SECTION_NAME_ALIASES,
+    TOKEN_BUDGET_TIERS,
+    TOKEN_ZONE_ANTI_PATTERN,
+    TOKEN_ZONE_DEGRADATION,
+    TOKEN_ZONE_GOOD,
+    TOKEN_ZONE_OPTIMAL,
+    AntiPatternCategory,
+    AntiPatternEntry,
+    AntiPatternID,
+    CanonicalSectionName,
+    TokenBudgetTier,
+)
+from docstratum.schema.diagnostics import DiagnosticCode, Severity
+
+__all__ = [
+    # Diagnostics
+    "DiagnosticCode",
+    "Severity",
+    # Constants - Sections
+    "CanonicalSectionName",
+    "SECTION_NAME_ALIASES",
+    "CANONICAL_SECTION_ORDER",
+    # Constants - Token Budget
+    "TokenBudgetTier",
+    "TOKEN_BUDGET_TIERS",
+    "TOKEN_ZONE_OPTIMAL",
+    "TOKEN_ZONE_GOOD",
+    "TOKEN_ZONE_DEGRADATION",
+    "TOKEN_ZONE_ANTI_PATTERN",
+    # Constants - Anti-Patterns
+    "AntiPatternCategory",
+    "AntiPatternID",
+    "AntiPatternEntry",
+    "ANTI_PATTERN_REGISTRY",
+]
